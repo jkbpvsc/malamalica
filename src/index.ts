@@ -1,6 +1,5 @@
-import { config } from 'dotenv';
-
-config();
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 import { Application } from 'express';
 import { initApp } from './app';

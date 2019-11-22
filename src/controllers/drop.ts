@@ -4,66 +4,31 @@ import { randomBytes } from 'crypto'
 
 
 function generateRandomString(n: number): string {
-  return randomBytes(n).toString('hex');
+    return randomBytes(n).toString('hex');
 }
 
 export async function createDrop(
-  req: Request,
-  res: Response,
+    req: Request,
+    res: Response,
 ): Promise<void> {
-  const id: string = generateRandomString(32);
-  const pubkey: string = req.body.pubkey;
-  const nonce: string = req.body.nonce;
+    const id: string = generateRandomString(32);
+    const pub_key: string | undefined = req.body.pub_key;
 
-  await Drop.create(
-    {
-      id,
-      pubkey,
-      nonce
+    if (!pub_key) {
+        res.status(400).send();
+        return;
     }
-  );
 
-  res.send(
-    {
-      id
-    }
-  );
+    await Drop.create({ id, pub_key });
+    res.send({ id });
 }
 
-export async function getDropData(
-  req: Request,
-  res: Response,
+export async function getDrop (
+    req: Request,
+    res: Response,
 ): Promise<void> {
-  const id: string = req.params.id;
-  const drop: Drop = await Drop.findByPk(id);
-  const nonce: string = req.params.nonce;
+    const id: string = req.params.id;
+    const drop: Drop = await Drop.findByPk(id);
 
-  if (nonce !== drop.nonce) {
-    res.status(403).send();
-    return;
-  }
-
-  res.send(
-    {
-      encrypted_data: drop.encrypted_data
-    }
-  );
-}
-
-export async function uploadDropData(
-  req: Request,
-  res: Response,
-): Promise<void> {
-  const id: string = req.params.id;
-  const encryptedData: string = req.body.encrypted_data;
-
-  const drop = await Drop.findByPk(id);
-  await drop.update({ encrypted_data: encryptedData });
-
-  Drop.update(
-    { encrypted_data: encryptedData },
-    { where: { id } },
-  )
-
-  res.status(201).send()
+    res.send({ pub_key: drop.pub_key })
 }
