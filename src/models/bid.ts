@@ -1,7 +1,6 @@
 import { Model, DataTypes } from 'sequelize';
 import { sequelize } from './database';
-import {Bid} from "./post";
-import {User} from "./user";
+import { User } from "./user";
 
 export class Bid extends Model {
     public readonly id: string;

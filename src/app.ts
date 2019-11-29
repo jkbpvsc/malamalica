@@ -3,8 +3,10 @@ import { urlencoded } from 'body-parser';
 import morgan from 'morgan';
 import cors from 'cors';
 import { createRouter } from './router'
+import { sequelize } from "./models/database";
+import session from 'express-session';
 
-export function initApp() {
+export async function initApp() {
     const app: Express = express();
 
     app.set('port', process.env.PORT || '3000');
@@ -12,7 +14,11 @@ export function initApp() {
     app.use(cors());
     app.use(morgan('dev'))
 
+    app.use(session({ secret: process.env.SESSION_SECRET, saveUninitialized: true, resave: true }));
+
     createRouter(app);
+
+    await sequelize.sync({ force: true });
 
     return app;
 }
