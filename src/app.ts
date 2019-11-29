@@ -5,6 +5,7 @@ import cors from 'cors';
 import { createRouter } from './router'
 import { sequelize } from "./models/database";
 import session from 'express-session';
+import cookieParser from 'cookie-parser';
 
 export async function initApp() {
     const app: Express = express();
@@ -12,7 +13,8 @@ export async function initApp() {
     app.set('port', process.env.PORT || '3000');
     app.use(urlencoded({ extended: false }));
     app.use(cors());
-    app.use(morgan('dev'))
+    app.use(morgan('dev'));
+    app.use(cookieParser());
 
     app.use(session({ secret: process.env.SESSION_SECRET, saveUninitialized: true, resave: true }));
 
