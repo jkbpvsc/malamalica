@@ -1,9 +1,6 @@
 import { Request, Response } from 'express';
 import { getAccessToken, getGIDUser } from "../utils/globalid";
-
 import jwt from 'jsonwebtoken';
-import * as fs from "fs";
-import * as path from "path";
 
 export async function handleOauthConnect (
     req: Request,
@@ -17,13 +14,11 @@ export async function handleOauthConnect (
     );
 
     const user = await getGIDUser(accessToken);
-
     const token: string = jwt.sign(
         { user, gid_access_token: accessToken },
-        { key: fs.readFileSync(path.join(__dirname, '../../keys/private.pem')).toString(), passphrase: process.env.PRIVATE_KEY_PASS },
+        process.env.JWT_SECRET,
         { expiresIn: 7200 }
     );
 
-    console.log(token);
     res.status(201).send({ access_token: token });
 }

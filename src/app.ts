@@ -6,6 +6,7 @@ import { createRouter } from './router'
 import { sequelize } from "./models/database";
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
+import { decodeJWT } from "./controllers/middleware";
 
 export async function initApp() {
     const app: Express = express();
@@ -15,6 +16,8 @@ export async function initApp() {
     app.use(cors());
     app.use(morgan('dev'));
     app.use(cookieParser());
+
+    app.use(decodeJWT);
 
     app.use(session({ secret: process.env.SESSION_SECRET, saveUninitialized: true, resave: true }));
 

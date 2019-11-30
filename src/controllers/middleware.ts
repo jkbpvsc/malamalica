@@ -1,19 +1,16 @@
 import { Request, Response } from "express";
 import { isNil } from 'lodash';
 import { verify } from 'jsonwebtoken';
-import * as fs from "fs";
-import * as path from "path";
+import { RequestWithUserObject } from "../interfaces";
 
 type Controller<T> = (req: Request) => Promise<T>
 
 export function controllerWrapper<T> (
     controller: Controller<T>
-): (req: Request, res: Response) => Promise<void> {
-    return async function (req: Request, res: Response) {
+): (req: RequestWithUserObject, res: Response) => Promise<void> {
+    return async function (req: RequestWithUserObject, res: Response) {
         try {
             const body: T = await controller(req);
-            // @ts-ignore
-            console.log(req.session.user);
             res.send(body)
         } catch (e) {
             console.error(e);
@@ -22,14 +19,16 @@ export function controllerWrapper<T> (
     }
 }
 
-export async function decodeJWT(req: Request, res: Response, next: Function) {
+export async function decodeJWT(req: RequestWithUserObject, res: Response, next: Function) {
     try {
         const authHeader = req.header('Authorization');
         const headerParts = authHeader.split(' ');
 
-        const publicKey = fs.readFileSync(path.join(__dirname, '../../keys/public.pem'));
-
-        req.session.user = verify(headerParts[1], publicKey);
+        req.user = verify(
+            headerParts[1],
+            process.env.JWT_SECRET,
+            { algorithms: [ 'HS256' ]}
+        ) as object;
     } catch (e) {
         console.log('Decoding the token failed', e);
     }
@@ -37,8 +36,8 @@ export async function decodeJWT(req: Request, res: Response, next: Function) {
     next();
 }
 
-export function isAuthenticated(req: Request, res: Response, next: Function) {
-    const user = req.session.user;
+export function isAuthenticated(req: RequestWithUserObject, res: Response, next: Function) {
+    const user = req.user;
     if (isNil(user)) {
         res.status(401).send();
         return;
