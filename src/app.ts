@@ -16,14 +16,11 @@ export async function initApp() {
     app.use(cors());
     app.use(morgan('dev'));
     app.use(cookieParser());
-
     app.use(decodeJWT);
-
-    app.use(session({ secret: process.env.SESSION_SECRET, saveUninitialized: true, resave: true }));
 
     createRouter(app);
 
-    await sequelize.sync({ force: true });
+    await sequelize.sync();
 
     return app;
 }

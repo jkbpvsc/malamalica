@@ -4,7 +4,7 @@ import { User } from "./user";
 
 export class Post extends Model {
     public readonly id: string;
-    public readonly author_id: string;
+    public readonly gid_uuid: string;
 
     public title: string;
     public description: string;
@@ -20,7 +20,7 @@ Post.init({
         type: DataTypes.STRING,
         primaryKey: true,
     },
-    author_id: {
+    gid_uuid: {
         type: DataTypes.STRING,
         references: {
             model: User,

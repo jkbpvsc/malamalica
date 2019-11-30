@@ -1,5 +1,6 @@
 import axios from 'axios';
 import qs from 'querystring';
+import { GIDUser } from "../interfaces";
 
 export async function getAccessToken(
     code: string,
@@ -18,7 +19,7 @@ export async function getAccessToken(
 
 export async function getGIDUser(
     accessToken: string
-): Promise<object> {
+): Promise<GIDUser> {
     const response = await axios.get(
         'https://api.global.id/v1/identities/me',
         { headers: { 'Authorization': `Bearer ${accessToken}`}}

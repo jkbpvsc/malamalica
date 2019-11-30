@@ -5,7 +5,7 @@ import { User } from "./user";
 export class Bid extends Model {
     public readonly id: string;
     public readonly post_id: string;
-    public readonly user_id: string;
+    public readonly gid_uuid: string;
 
     public message: string;
     public value: number;
@@ -27,7 +27,7 @@ Bid.init({
             key: 'id',
         }
     },
-    user_id: {
+    gid_uuid: {
         type: DataTypes.STRING,
         allowNull: false,
         references: {

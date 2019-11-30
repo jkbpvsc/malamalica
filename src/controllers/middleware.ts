@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { isNil } from 'lodash';
 import { verify } from 'jsonwebtoken';
-import { RequestWithUserObject } from "../interfaces";
+import {JWTUser, RequestWithUserObject} from "../interfaces";
+import {ErrorList} from "../error-list";
 
 type Controller<T> = (req: Request) => Promise<T>
 
@@ -13,8 +14,19 @@ export function controllerWrapper<T> (
             const body: T = await controller(req);
             res.send(body)
         } catch (e) {
-            console.error(e);
-            res.status(500).send(e);
+
+            console.error(e)
+            let errorCode = e.message;
+
+            if (isNil(ErrorList[errorCode])) {
+                errorCode = 'ERR'
+            }
+
+            const errorObject = ErrorList[errorCode];
+            console.log(errorObject);
+            res
+                .status(errorObject.code)
+                .send({ code: errorCode, message: errorObject.message });
         }
     }
 }
@@ -22,13 +34,15 @@ export function controllerWrapper<T> (
 export async function decodeJWT(req: RequestWithUserObject, res: Response, next: Function) {
     try {
         const authHeader = req.header('Authorization');
-        const headerParts = authHeader.split(' ');
+        if (authHeader) {
+            const headerParts = authHeader.split(' ');
 
-        req.user = verify(
-            headerParts[1],
-            process.env.JWT_SECRET,
-            { algorithms: [ 'HS256' ]}
-        ) as object;
+            req.user = verify(
+                headerParts[1],
+                process.env.JWT_SECRET,
+                { algorithms: [ 'HS256' ]}
+            ) as JWTUser;
+        }
     } catch (e) {
         console.log('Decoding the token failed', e);
     }

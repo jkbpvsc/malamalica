@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { getAccessToken, getGIDUser } from "../utils/globalid";
 import jwt from 'jsonwebtoken';
+import { User } from "../models/user";
 
 export async function handleOauthConnect (
     req: Request,
@@ -20,5 +21,7 @@ export async function handleOauthConnect (
         { expiresIn: 7200 }
     );
 
-    res.status(201).send({ access_token: token });
+    await User.upsert({ gid_name: user.gid_name, gid_uuid: user.gid_uuid});
+
+    res.status(201).send({ accessToken: token });
 }
