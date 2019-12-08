@@ -1,6 +1,7 @@
 import { Model, DataTypes } from 'sequelize';
 import { sequelize } from './database';
 import { User } from "./user";
+import { Post } from "./post";
 
 export class Bid extends Model {
     public readonly id: string;
@@ -23,7 +24,7 @@ Bid.init({
         type: DataTypes.STRING,
         allowNull: false,
         references: {
-            model: Bid,
+            model: Post,
             key: 'id',
         }
     },

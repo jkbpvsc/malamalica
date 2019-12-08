@@ -19,7 +19,7 @@ export async function getBidById(
 export async function createBid(
     req: RequestWithUserObject,
 ): Promise<Bid> {
-    const user_id = req.user.user.gid_uuid;
+    const gid_uuid = req.user.user.gid_uuid;
     const { post_id, message, value } = req.body;
 
     const post = await Post.findByPk(post_id);
@@ -27,7 +27,7 @@ export async function createBid(
         throw Error('ERR_POST_NOT_FOUND');
     }
 
-    return Bid.create({ id: v4(), user_id, post_id, message, value});
+    return Bid.create({ id: v4(), gid_uuid, post_id, message, value});
 }
 
 export async function updateBid(
@@ -59,4 +59,17 @@ export async function deleteBid(
     }
 
     await Bid.destroy({ where: { id }})
+}
+
+export async function getBidsByPost(
+    req: RequestWithUserObject
+): Promise<Bid[]> {
+    const post_id = req.params.post_id;
+    const post = await Post.findByPk(post_id);
+
+    if (post.gid_uuid !== req.user.user.gid_uuid) {
+        throw new Error('ERR_FORBIDDEN')
+    }
+
+    return Bid.findAll({ where: { post_id }});
 }

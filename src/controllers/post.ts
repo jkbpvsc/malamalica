@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Post } from "../models/post";
 import {RequestWithUserObject} from "../interfaces";
 import v4 from 'uuid/v4';
+import {Bid} from "../models/bid";
 
 export async function getPosts(
     _: Request,
@@ -64,4 +65,29 @@ export async function deletePost(
     }
 
     await Post.destroy({ where: { id }})
+}
+
+export async function getMyPosts(
+    req: RequestWithUserObject
+) {
+    const gid_uuid = req.user.user.gid_uuid;
+
+    const posts = await Post.findAll({ where: { gid_uuid }});
+
+    const postsWithBidCount = await Promise.all(
+        posts.map(countBidsInAPost)
+    );
+
+    return postsWithBidCount
+}
+
+async function countBidsInAPost (
+    post: Post
+) {
+    const bidCount: number = await Bid.count({ where: { post_id: post.id }});
+
+    return {
+        ...post.toJSON(),
+        bids: bidCount,
+    }
 }

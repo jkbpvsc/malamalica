@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { getAccessToken, getGIDUser } from "../utils/globalid";
 import jwt from 'jsonwebtoken';
 import { User } from "../models/user";
+import {RequestWithUserObject} from "../interfaces";
 
 export async function handleOauthConnect (
     req: Request,
@@ -24,4 +25,12 @@ export async function handleOauthConnect (
     await User.upsert({ gid_name: user.gid_name, gid_uuid: user.gid_uuid});
 
     res.status(201).send({ accessToken: token });
+}
+
+export function getMyUser(
+    req: RequestWithUserObject
+): Promise<User> {
+    const gid_uuid = req.user.user.gid_uuid;
+
+    return User.findByPk(gid_uuid);
 }
