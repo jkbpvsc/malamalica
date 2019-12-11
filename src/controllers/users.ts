@@ -2,9 +2,9 @@ import { Request, Response } from 'express';
 import { getAccessToken, getGIDUser } from "../utils/globalid";
 import jwt from 'jsonwebtoken';
 import { User } from "../models/user";
-import {RequestWithUserObject} from "../interfaces";
+import { RequestWithUserObject } from "../interfaces";
 
-export async function handleOauthConnect (
+export async function handleOauthConnect(
     req: Request,
     res: Response,
 ): Promise<void> {
@@ -19,10 +19,10 @@ export async function handleOauthConnect (
     const token: string = jwt.sign(
         { user, gid_access_token: accessToken },
         process.env.JWT_SECRET,
-        { expiresIn: 7200 }
+        { expiresIn: '60d' }
     );
 
-    await User.upsert({ gid_name: user.gid_name, gid_uuid: user.gid_uuid});
+    await User.upsert({ gid_name: user.gid_name, gid_uuid: user.gid_uuid });
 
     res.status(201).send({ accessToken: token });
 }

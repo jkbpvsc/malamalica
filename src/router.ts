@@ -3,6 +3,7 @@ import {controllerWrapper, isAuthenticated} from './controllers/middleware';
 import {createPost, deletePost, getMyPosts, getPostById, getPosts, updatePost} from './controllers/post';
 import {createBid, deleteBid, getBidById, getBids, getBidsByPost, updateBid} from './controllers/bid';
 import {getMyUser, handleOauthConnect} from './controllers/users';
+import {createBidMessage, getBidMessagesByBidId} from "./controllers/bid_messages";
 
 export function createRouter(app: Application): void {
     createPostRouter(app);
@@ -23,10 +24,15 @@ function createPostRouter(app: Application) {
 }
 
 function createBidRouter(app: Application) {
+
+    app.post('/api/bids/:bid_id/messages', isAuthenticated, controllerWrapper(createBidMessage));
+    app.get('/api/bids/:bid_id/messages', isAuthenticated, controllerWrapper(getBidMessagesByBidId));
+
     app.post('/api/bids/', isAuthenticated, controllerWrapper(createBid));
     app.put('/api/bids/:id', isAuthenticated, controllerWrapper(updateBid));
+
     app.get('/api/bids/:id', controllerWrapper(getBidById));
-    app.delete('/api/bids/:id', isAuthenticated, controllerWrapper(deleteBid))
+    app.delete('/api/bids/:id', isAuthenticated, controllerWrapper(deleteBid));
 }
 
 function createUserRouter(app: Application) {

@@ -1,21 +1,20 @@
 import { Request, Response } from "express";
 import { isNil } from 'lodash';
 import { verify } from 'jsonwebtoken';
-import {JWTUser, RequestWithUserObject} from "../interfaces";
-import {ErrorList} from "../error-list";
+import { JWTUser, RequestWithUserObject } from "../interfaces";
+import { ErrorList } from "../error-list";
 
-type Controller<T> = (req: Request) => Promise<T>
+type Controller<T> = (req: Request | RequestWithUserObject) => Promise<T>
 
-export function controllerWrapper<T> (
+export function controllerWrapper<T>(
     controller: Controller<T>
 ): (req: RequestWithUserObject, res: Response) => Promise<void> {
-    return async function (req: RequestWithUserObject, res: Response) {
+    return async function(req: RequestWithUserObject, res: Response) {
         try {
             const body: T = await controller(req);
             res.send(body)
         } catch (e) {
 
-            console.error(e)
             let errorCode = e.message;
 
             if (isNil(ErrorList[errorCode])) {
@@ -23,7 +22,7 @@ export function controllerWrapper<T> (
             }
 
             const errorObject = ErrorList[errorCode];
-            console.log(errorObject);
+
             res
                 .status(errorObject.code)
                 .send({ code: errorCode, message: errorObject.message });
