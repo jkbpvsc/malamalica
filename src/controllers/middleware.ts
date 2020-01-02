@@ -14,6 +14,7 @@ export function controllerWrapper<T>(
             const body: T = await controller(req);
             res.send(body)
         } catch (e) {
+            console.error(e)
 
             let errorCode = e.message;
 

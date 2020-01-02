@@ -34,3 +34,11 @@ export function getMyUser(
 
     return User.findByPk(gid_uuid);
 }
+
+export function getUserByID(
+    req: Request
+): Promise<User> {
+    const gid_uuid = req.params.gid_uuid;
+
+    return User.findByPk(gid_uuid);
+}

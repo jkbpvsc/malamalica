@@ -3,6 +3,7 @@ import { Bid } from "../models/bid";
 import {RequestWithUserObject} from "../interfaces";
 import v4 from 'uuid/v4';
 import {Post} from "../models/post";
+import {BidMessage} from "../models/bid_message";
 
 export async function getBids(
     _: Request,
@@ -63,7 +64,7 @@ export async function deleteBid(
 
 export async function getBidsByPost(
     req: RequestWithUserObject
-): Promise<Bid[]> {
+) {
     const post_id = req.params.post_id;
     const post = await Post.findByPk(post_id);
 
@@ -71,5 +72,13 @@ export async function getBidsByPost(
         throw new Error('ERR_FORBIDDEN')
     }
 
-    return Bid.findAll({ where: { post_id }});
+    const bids: Bid[] = await Bid.findAll({ where: { post_id }});
+
+    const bidsWithMessageCount = await Promise.all(
+        bids.map(
+            async (bid: Bid) => ({ ...bid.toJSON(), repliesCount: await BidMessage.count({ where: { bid_id: bid.id } }) })
+        )
+    );
+
+    return bidsWithMessageCount;
 }
