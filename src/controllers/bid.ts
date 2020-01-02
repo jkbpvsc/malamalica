@@ -82,3 +82,19 @@ export async function getBidsByPost(
 
     return bidsWithMessageCount;
 }
+
+export async function getMyBids(
+    req: RequestWithUserObject,
+) {
+    const gid_uuid = req.user.user.gid_uuid;
+
+    const bids: Bid[] = await Bid.findAll({ where: { gid_uuid }});
+
+    const bidsWithMessageCount = await Promise.all(
+        bids.map(
+            async (bid: Bid) => ({ ...bid.toJSON(), repliesCount: await BidMessage.count({ where: { bid_id: bid.id } }) })
+        )
+    );
+
+    return bidsWithMessageCount;
+}

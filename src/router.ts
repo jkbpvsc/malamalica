@@ -1,7 +1,7 @@
 import { Application } from 'express';
 import { controllerWrapper, isAuthenticated } from './controllers/middleware';
 import { createPost, deletePost, getMyPosts, getPostById, getPosts, updatePost } from './controllers/post';
-import { createBid, deleteBid, getBidById, getBids, getBidsByPost, updateBid } from './controllers/bid';
+import { createBid, deleteBid, getBidById, getBidsByPost, getMyBids, updateBid } from './controllers/bid';
 import { getMyUser, handleOauthConnect, getUserByID } from './controllers/users';
 import { createBidMessage, getBidMessagesByBidId } from "./controllers/bid_messages";
 
@@ -29,6 +29,7 @@ function createBidRouter(app: Application) {
     app.get('/api/bids/:bid_id/messages', isAuthenticated, controllerWrapper(getBidMessagesByBidId));
 
     app.post('/api/bids/', isAuthenticated, controllerWrapper(createBid));
+    app.get('/api/bids/me', isAuthenticated, controllerWrapper(getMyBids));
     app.put('/api/bids/:id', isAuthenticated, controllerWrapper(updateBid));
 
     app.get('/api/bids/:id', controllerWrapper(getBidById));
